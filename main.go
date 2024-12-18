@@ -32,7 +32,7 @@ var (
 )
 
 func main() {
-	flag.StringVar(&repository, "repos", "", "repository")
+	flag.StringVar(&repository, "repo", "", "repository")
 	flag.Parse()
 
 SCANS:
@@ -70,28 +70,26 @@ SCANS:
 		goto SCANS
 	}
 
-	uri := strings.ReplaceAll(normalized, "http", "https")
+	uri := strings.ReplaceAll(normalized, "https", "http")
+	uri = strings.ReplaceAll(uri, "http", "https")
 	u, _ := urlx.Parse(uri)
 
 	var modPath string
 	paths := strings.Split(u.Path, "/")
-	if len(paths) == 3 {
-		res, err := http.Get(fmt.Sprintf("https://ungh.xiaoxuan6.me/repos/%s/%s", paths[1], paths[2]))
-		if err != nil {
-			fmt.Printf(red, "请求失败："+err.Error())
-			return
-		}
-		defer res.Body.Close()
-
-		b, _ := ioutil.ReadAll(res.Body)
-		language := strings.ToLower(gjson.GetBytes(b, "repo.language").String())
+	if len(paths) == 3 || strings.HasPrefix(uri, "https://github.com") {
+		body := httpRetry(fmt.Sprintf("https://ungh.xiaoxuan6.me/repos/%s/%s", paths[1], paths[2]))
+		language := strings.ToLower(gjson.GetBytes(body, "repo.language").String())
 		if strings.Compare(language, "go") != 0 {
 			fmt.Printf(red, "repository language is ["+language+"] not support go.mod")
 			return
 		}
 
-		defaultBranch := gjson.GetBytes(b, "repo.defaultBranch").String()
-		modPath = fmt.Sprintf("%s/blob/%s/go.mod", uri, defaultBranch)
+		defaultBranch := gjson.GetBytes(body, "repo.defaultBranch").String()
+		if len(paths) == 3 {
+			modPath = fmt.Sprintf("%s/blob/%s/go.mod", uri, defaultBranch)
+		} else {
+			modPath = fmt.Sprintf("https://github.com/%s/%s/blob/%s/go.mod", paths[1], paths[2], defaultBranch)
+		}
 	} else if strings.HasSuffix(u.Path, "/go.mod") {
 		modPath = uri
 	} else {
@@ -106,6 +104,7 @@ SCANS:
 	var wgs sync.WaitGroup
 	wgs.Add(2)
 	go loadTemplate(&wgs)
+	time.Sleep(1 * time.Second)
 	go fetchModContent(modPath, &wgs)
 	wgs.Wait()
 
@@ -130,6 +129,12 @@ SCANS:
 	wgs.Wait()
 
 	s.Stop()
+
+	if len(newRepository) == 0 {
+		fmt.Printf(green, fmt.Sprintf("go.mod 中包含 %d 个 repository", len(repositories)))
+		fmt.Printf(green, "【github.com/xiaoxuan6/go-package-example】已全覆盖 go.mod")
+		return
+	}
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Repo", "Desc", "Stars", "Forks"})

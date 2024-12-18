@@ -5,12 +5,12 @@
 
 ```shell
 gmod --repo github.com/xiaoxuan6/gmod
-```
-
+or 
+gmod --repo https://github.com/xiaoxuan6/gmod
 or
-
-```shell
 gmod --repo github.com/xiaoxuan6/gmod/blob/main/go.mod
+or
+gmod --repo https://github.com/xiaoxuan6/gmod/blob/main/.goreleaser.yaml
 ```
 
 # 相关链接
