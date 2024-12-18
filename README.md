@@ -1,6 +1,18 @@
 # gmod
 展示 Repository 中 go.mod 所依赖的 Repository
 
+# Install
+
+```bash
+go install github.com/xiaoxuan6/gmod
+```
+
+shell
+
+```shell
+bash <(curl -sSL https://github-mirror.us.kg/https://github.com/xiaoxuan6/gmod/blob/main/gmod.sh) install
+```
+
 # Usage
 
 ```shell
