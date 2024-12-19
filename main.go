@@ -137,7 +137,7 @@ SCANS:
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Repo", "Desc", "Stars", "Forks"})
+	table.SetHeader([]string{"Repo", "Stars", "Forks", "Desc"})
 	table.AppendBulk(tableData)
 	table.SetRowLine(true)
 	table.Render()
