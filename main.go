@@ -184,7 +184,7 @@ var templates = make([]string, 0)
 
 func loadTemplate(wg *sync.WaitGroup) {
 	defer wg.Done()
-	body := httpRetry("https://github-mirror.us.kg/https://github.com/xiaoxuan6/go-package-example/blob/main/README.md")
+	body := httpRetry("https://github-mirror.xiaoxuan6.me/https://github.com/xiaoxuan6/go-package-example/blob/main/README.md")
 	f := bufio.NewScanner(strings.NewReader(string(body)))
 	for f.Scan() {
 		line := strings.TrimSpace(f.Text())
@@ -199,7 +199,7 @@ var repositories = make([]string, 0)
 
 func fetchModContent(url string, wg *sync.WaitGroup) {
 	defer wg.Done()
-	body := httpRetry(fmt.Sprintf("https://github-mirror.us.kg/%s", url))
+	body := httpRetry(fmt.Sprintf("https://github-mirror.xiaoxuan6.me/%s", url))
 	f := bufio.NewScanner(strings.NewReader(string(body)))
 	for f.Scan() {
 		newLine := strings.TrimSpace(f.Text())
